@@ -78,7 +78,20 @@ public class TxHandler {
 				}
 
 				valid.add(Tx);
-				// neen help with updatePool(Tx);
+				
+				for(Transaction.Input in : Tx.getInputs()) {
+					UTXO Nutxo = new UTXO(in.prevTxHash, in.outputIndex);
+					this.uPool.removeUTXO(Nutxo);
+				}
+
+				byte[] Hash = Tx.getHash();
+				int i = 0;
+				
+				for (Transaction.Output output : Tx.getOutputs()) {
+					UTXO Nutxo = new UTXO(Hash, i);
+					i++;
+					this.uPool.addUTXO(Nutxo,output);
+				}				
 				forRemove.add(Tx);
 
 			}
@@ -91,5 +104,4 @@ public class TxHandler {
 		} while (transCount != TransXs.size()  && transCount != 0);
 		return valid.toArray(new Transaction[valid.size()]);
 	}
-
 }
