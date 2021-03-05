@@ -1,26 +1,56 @@
+import java.util.*;
 public class TxHandler {
 
-	/* Creates a public ledger whose current UTXOPool (collection of unspent 
-	 * transaction outputs) is utxoPool. This should make a defensive copy of 
-	 * utxoPool by using the UTXOPool(UTXOPool uPool) constructor.
-	 */
+	private UTXOPool uPool;
+
 	public TxHandler(UTXOPool utxoPool) {
-		// IMPLEMENT THIS
+		this.uPool = new UTXOPool(utxoPool);
 	}
 
-	/* Returns true if 
-	 * (1) all outputs claimed by tx are in the current UTXO pool, 
-	 * (2) the signatures on each input of tx are valid, 
-	 * (3) no UTXO is claimed multiple times by tx, 
-	 * (4) all of tx’s output values are non-negative, and
-	 * (5) the sum of tx’s input values is greater than or equal to the sum of   
-	        its output values;
-	   and false otherwise.
-	 */
-
 	public boolean isValidTx(Transaction tx) {
-		// IMPLEMENT THIS
-		return false;
+
+		double outValue = 0.0;
+		double inValue = 0.0;
+		int i = 0;
+		HashSet<UTXO> utSeen = new HashSet<UTXO>();
+			
+			// all outputs claimed by tx are in the current UTXO pool 
+		for(Transaction.Input in : tx.getInputs()) {
+			UTXO ut = new UTXO(in.prevTxHash, in.outputIndex);
+			if (!this.uPool.contains(ut)) { 
+				return false;
+			}
+
+			double preVal = uPool.getTxOutput(ut).value;
+			inValue += preVal;
+
+				// no UTXO is claimed multiple times by tx
+			if (utSeen.contains(ut)) { 
+				return false;
+			}
+			utSeen.add(ut);
+
+				// the signatures on each input of tx are valid
+			if(!utxoPool.getTxOutput(ut).address.verifySignature(tx.getRawDataToSign(i), in.signature)) { 
+				return false;
+			}
+			i++;
+		}
+
+			// all of tx�s output values are non-negative
+		for (Transaction.Output out : tx.getOutputs()) {
+			if (out.value < 0.0) { 
+				return false;
+			}
+			outValue += out.value;
+		}
+
+			// the sum of tx�s input values is greater than or equal to the sum of its output values
+		if (inValue < outValue) { 
+			return false;
+		}
+			// all were true
+		return true;
 	}
 
 	/* Handles each epoch by receiving an unordered array of proposed 
