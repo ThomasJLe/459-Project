@@ -78,7 +78,7 @@ public class TxHandler {
 				}
 
 				valid.add(Tx);
-				updatePool(Tx);
+				// neen help with updatePool(Tx);
 				forRemove.add(Tx);
 
 			}
