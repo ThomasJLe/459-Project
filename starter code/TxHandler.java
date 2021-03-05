@@ -31,7 +31,7 @@ public class TxHandler {
 			utSeen.add(ut);
 
 				// the signatures on each input of tx are valid
-			if(!utxoPool.getTxOutput(ut).address.verifySignature(tx.getRawDataToSign(i), in.signature)) { 
+			if(!uPool.getTxOutput(ut).address.verifySignature(tx.getRawDataToSign(i), in.signature)) { 
 				return false;
 			}
 			i++;
@@ -59,8 +59,37 @@ public class TxHandler {
 	 * and updating the current UTXO pool as appropriate.
 	 */
 	public Transaction[] handleTxs(Transaction[] possibleTxs) {
-		// IMPLEMENT THIS
-		return null;
+		// (1) Return only valid transactions
+		// (2) One transaction's inputs may depend on the output of another
+		// transaction in the same epoch
+		// (3) Update uxtoPool
+		// (4) Return mutally valid transaction set of maximal size
+
+		HashSet<Transaction> TransXs = new HashSet<Transaction>(Arrays.asList(possibleTxs));
+		int transCount = 0;
+		ArrayList<Transaction> valid = new ArrayList<Transaction>();
+
+		do {
+			transCount = TransXs.size();
+			HashSet<Transaction> forRemove = new HashSet<Transaction>();
+			for (Transaction Tx : TransXs) {
+				if(!isValidTx(Tx)) {
+					continue;
+				}
+
+				valid.add(Tx);
+				updatePool(Tx);
+				forRemove.add(Tx);
+
+			}
+
+			for (Transaction Tx : forRemove){
+				TransXs.remove(Tx);
+			}
+
+
+		} while (transCount != TransXs.size()  && transCount != 0);
+		return valid.toArray(new Transaction[valid.size()]);
 	}
 
-} 
+}
