@@ -25,21 +25,20 @@ public class TxHandler {
 				return false;
 			}
 
-			// double preVal = uPool.getTxOutput(ut).value;
-			// inValue += preVal;
 			// Add to the input total
 			inValue += uPool.getTxOutput(ut).value;
 
-			// (3) Return true if no UTXO is claimed multiple times by tx
-			if (utSeen.contains(ut)) 
+			// (2) Return true if the signatures on each input of tx are valid
+			if (!uPool.getTxOutput(ut).address.verifySignature(tx.getRawDataToSign(i), in.signature))
 				return false;
+
+			// (3) Return true if no UTXO is claimed multiple times by tx
+			if (utSeen.contains(ut))
+				return false;
+
 			// Add the UTXO to the Hash set
 			utSeen.add(ut);
 
-			// (2) Return true if the signatures on each input of tx are valid
-			if (!uPool.getTxOutput(ut).address.verifySignature(tx.getRawDataToSign(i), in.signature)) 
-				return false;
-			
 			// Increment the index
 			i++;
 		}
@@ -59,7 +58,7 @@ public class TxHandler {
 		// the sum of its output values
 		if (inValue < outValue)
 			return false;
-			
+
 		// Else, returns true for all statements
 		return true;
 	}
@@ -70,11 +69,6 @@ public class TxHandler {
 	 * of accepted transactions, and updating the current UTXO pool as appropriate.
 	 */
 	public Transaction[] handleTxs(Transaction[] possibleTxs) {
-		// (1) Return only valid transactions
-		// (2) One transaction's inputs may depend on the output of another
-		// transaction in the same epoch
-		// (3) Update uxtoPool
-		// (4) Return mutally valid transaction set of maximal size
 
 		HashSet<Transaction> TransXs = new HashSet<Transaction>(Arrays.asList(possibleTxs));
 		int transCount = 0;
@@ -84,12 +78,15 @@ public class TxHandler {
 			transCount = TransXs.size();
 			HashSet<Transaction> forRemove = new HashSet<Transaction>();
 			for (Transaction Tx : TransXs) {
+
+				// (1) Return only valid transactions
 				if (!isValidTx(Tx)) {
 					continue;
 				}
 
 				valid.add(Tx);
 
+				// (3) Update uxtoPool
 				for (Transaction.Input in : Tx.getInputs()) {
 					UTXO Nutxo = new UTXO(in.prevTxHash, in.outputIndex);
 					this.uPool.removeUTXO(Nutxo);
@@ -98,6 +95,8 @@ public class TxHandler {
 				byte[] Hash = Tx.getHash();
 				int i = 0;
 
+				// (2) One transaction's inputs may depend on the output of another transaction
+				// in the same epoch
 				for (Transaction.Output output : Tx.getOutputs()) {
 					UTXO Nutxo = new UTXO(Hash, i);
 					i++;
@@ -112,6 +111,8 @@ public class TxHandler {
 			}
 
 		} while (transCount != TransXs.size() && transCount != 0);
+
+		// (4) Return mutally valid transaction set of maximal size
 		return valid.toArray(new Transaction[valid.size()]);
 	}
 }
