@@ -15,7 +15,6 @@ public class TxHandler {
 		int i = 0;
 		HashSet<UTXO> utSeen = new HashSet<UTXO>();
 
-		// all outputs claimed by tx are in the current UTXO pool
 		for (Transaction.Input in : tx.getInputs()) {
 			// Creating an object of UTXO to manipulate
 			UTXO ut = new UTXO(in.prevTxHash, in.outputIndex);
