@@ -114,4 +114,5 @@ public class TxHandler {
 		// (4) Return mutally valid transaction set of maximal size
 		return valid.toArray(new Transaction[valid.size()]);
 	}
+
 }
