@@ -43,7 +43,7 @@ public class TxHandler {
 		}
 
 		// all of tx's output values are non-negative
-		// Forloop to go through Transaction outputs
+		// For-loop to go through Transaction outputs
 		for (Transaction.Output out : tx.getOutputs()) {
 			// (4) Return true if all of tx's output values are non-negative
 			if (out.value < 0.0)
@@ -111,7 +111,7 @@ public class TxHandler {
 
 		} while (transCount != TransXs.size() && transCount != 0);
 
-		// (4) Return mutally valid transaction set of maximal size
+		// (4) Return mutually valid transaction set of maximal size
 		return valid.toArray(new Transaction[valid.size()]);
 	}
 
