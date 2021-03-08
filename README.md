@@ -10,4 +10,4 @@ Fahad Alsowaylim - fss@csu.Fullerton.edu
 Donavie Ordonez - donavielove@csu.fullerton.edu
 Miguel Pulido - miguelpulidojr@csu.fullerton.edu
 
-The extra credit was not implemented.
+The extra credit was implemented.
